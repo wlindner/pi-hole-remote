@@ -2,6 +2,7 @@
   import * as appSettings from "tns-core-modules/application-settings";
 
   import TokenPage from "./TokenPage";
+  import MainPage from "./MainPage";
 
   const token = appSettings.getString("token");
 
@@ -14,7 +15,7 @@
     {#if !token}
       <TokenPage {token} />
     {:else}
-      <label text="Token Definitely Found" class="h1 text-center" />
+      <MainPage />
     {/if}
   </stackLayout>
 </page>
