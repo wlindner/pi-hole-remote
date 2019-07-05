@@ -1,19 +1,16 @@
 <script>
-  let counter = 666;
-  let message;
-  $: message =
-    counter <= 0
-      ? "Hoorraaay! You unlocked the Svelte-Native clicker achievement!"
-      : `${counter} taps left`;
+  import * as appSettings from "tns-core-modules/application-settings";
 
-  const onTap = () => counter--;
+  const token = appSettings.getString("token");
 </script>
 
-<page class="page">
-  <actionBar title="My App" icon="" class="action-bar" />
+<page>
+  <actionBar title="Pi-Hole Remote" />
   <stackLayout class="p-20">
-    <label text="Tap the button" class="h1 text-center" />
-    <button text="TAP" on:tap={onTap} class="btn btn-primary btn-active" />
-    <label text={message} class="h2 text-center" textWrap="true" />
+    {#if !token}
+      <label text="Token Not Found" class="h1 text-center" />
+    {:else}
+      <label text="Token Found" class="h1 text-center" />
+    {/if}
   </stackLayout>
 </page>
