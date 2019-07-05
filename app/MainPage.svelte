@@ -1,34 +1,43 @@
 <script>
   import { onMount } from "svelte";
+  import {
+    resumeEvent,
+    on as applicationOn
+  } from "tns-core-modules/application";
+  const capitalize = (v = "") => v.charAt(0).toUpperCase() + v.slice(1);
 
   export let token;
 
-  let status = "Unknown";
-  let checked = false;
+  let status;
+  let Status;
+  $: Status = capitalize(status);
+  let checked;
+  $: checked = status === "enabled";
   let initializing = true;
 
   onMount(async function() {
     try {
       await checkStatus();
     } catch (e) {
-      // checked will stay false
       initializing = false;
     }
   });
 
   async function checkStatus() {
-    const response = await fetch("http://pi.hole/admin/api.php");
-    const data = await response.json();
-
-    if (data.status === "disabled") {
-      checked = false;
-      status = "Disabled";
-    } else if (data.status === "enabled") {
-      checked = true;
-      status = "Enabled";
+    status = "loading";
+    try {
+      const response = await fetch("http://pi.hole/admin/api.php");
+      const data = await response.json();
+      status = data.status;
+    } catch (e) {
+      status = "error";
     }
     initializing = false;
   }
+
+  applicationOn(resumeEvent, async () => {
+    await checkStatus();
+  });
 
   const toggleSwitch = async event => {
     if (initializing) {
@@ -36,43 +45,34 @@
       return;
     }
 
-    if (event.oldValue) {
-      // disable adblocking
-      try {
+    try {
+      if (event.oldValue) {
+        // disable adblocking
         const response = await fetch(
           `http://pi.hole/admin/api.php?disable=0&auth=${token}`
         );
-        if (response.ok) {
-          status = "Disabled";
-        } else {
-          status = "Unknown";
-          await checkStatus();
-        }
-      } catch (e) {
-        status = "Enabled";
-      }
-    } else {
-      // enable adblocking
-      try {
+      } else {
+        // enable adblocking
         const response = await fetch(
           `http://pi.hole/admin/api.php?enable&auth=${token}`
         );
-        if (response.ok) {
-          status = "Enabled";
-        } else {
-          status = "Unknown";
-          await checkStatus();
-        }
-      } catch (e) {
-        status = "Disabled";
       }
+    } catch (e) {
+      await checkStatus();
     }
   };
 </script>
 
 <stackLayout>
-  <label text="Status: {status}" class="h1 text-center" />
-  {#if status !== 'Unknown'}
+  {#if status === 'loading'}
+    <activityIndicator busy={true} />
+  {:else if status === 'error'}
+    <label
+      text="Cannot connect to Pi-Hole 😖"
+      class="h3 text-center"
+      style="color: red" />
+  {:else}
+    <label text="Status: {Status}" class="h1 text-center" />
     <switch {checked} on:checkedChange={toggleSwitch} />
   {/if}
 </stackLayout>
