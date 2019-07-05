@@ -5,8 +5,6 @@
   import MainPage from "./MainPage";
 
   const token = appSettings.getString("token");
-
-  console.log(token);
 </script>
 
 <page>
@@ -15,7 +13,7 @@
     {#if !token}
       <TokenPage {token} />
     {:else}
-      <MainPage />
+      <MainPage {token} />
     {/if}
   </stackLayout>
 </page>
