@@ -1,17 +1,19 @@
 <script>
   import * as appSettings from "tns-core-modules/application-settings";
+  import { token } from "./Store.js";
 
-  export let token;
+  let text = $token;
 
   const saveToken = () => {
-    appSettings.setString("token", token);
+    $token = text;
+    appSettings.setString("token", $token);
   };
 </script>
 
 <page>
   <textField
     hint="Enter token"
-    bind:text={token}
+    bind:text
     returnKeyType="done"
     on:returnPress={saveToken}
     autocorrect="false"

@@ -4,15 +4,13 @@
     resumeEvent,
     on as applicationOn
   } from "tns-core-modules/application";
+  import { token } from "./Store.js";
   const capitalize = (v = "") => v.charAt(0).toUpperCase() + v.slice(1);
-
-  export let token;
 
   let status;
   let Status;
   $: Status = capitalize(status);
   let checked;
-  $: checked = status === "enabled";
   let initializing = true;
 
   onMount(async function() {
@@ -23,12 +21,21 @@
     }
   });
 
+  function resetToken() {
+    $token = "";
+  }
+
   async function checkStatus() {
     status = "loading";
     try {
       const response = await fetch("http://pi.hole/admin/api.php");
       const data = await response.json();
       status = data.status;
+      if (status === "enabled") {
+        checked = true;
+      } else {
+        checked = false;
+      }
     } catch (e) {
       status = "error";
     }
@@ -39,23 +46,25 @@
     await checkStatus();
   });
 
-  const toggleSwitch = async event => {
+  const toggleSwitch = async ({ oldValue }) => {
     if (initializing) {
       initializing = false;
       return;
     }
 
     try {
-      if (event.oldValue) {
+      if (oldValue) {
         // disable adblocking
         const response = await fetch(
-          `http://pi.hole/admin/api.php?disable=0&auth=${token}`
+          `http://pi.hole/admin/api.php?disable=0&auth=${$token}`
         );
+        status = "disabled";
       } else {
         // enable adblocking
         const response = await fetch(
-          `http://pi.hole/admin/api.php?enable&auth=${token}`
+          `http://pi.hole/admin/api.php?enable&auth=${$token}`
         );
+        status = "enabled";
       }
     } catch (e) {
       await checkStatus();
@@ -71,6 +80,7 @@
       text="Cannot connect to Pi-Hole 😖"
       class="h3 text-center"
       style="color: red" />
+    <button text="Reset Token" on:tap={resetToken} />
   {:else}
     <label text="Status: {Status}" class="h1 text-center" />
     <switch {checked} on:checkedChange={toggleSwitch} />
