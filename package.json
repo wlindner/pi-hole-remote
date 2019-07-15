@@ -12,6 +12,10 @@
   "description": "NativeScript Application",
   "license": "SEE LICENSE IN <your-license-filename>",
   "repository": "<fill-your-repository-here>",
+  "scripts": {
+    "start": "tns run ios --bundle",
+    "build": "tns build ios"
+  },
   "dependencies": {
     "nativescript-barcodescanner": "^3.2.1",
     "nativescript-theme-core": "~1.0.6",
