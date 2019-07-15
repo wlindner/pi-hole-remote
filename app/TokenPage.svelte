@@ -5,8 +5,10 @@
   let text = $token;
 
   const saveToken = () => {
-    $token = text;
-    appSettings.setString("token", $token);
+    if (text.length == 64) {
+      $token = text;
+      appSettings.setString("token", $token);
+    }
   };
 </script>
 
