@@ -10,12 +10,31 @@
   };
 </script>
 
-<page>
-  <textField
-    hint="Enter token"
-    bind:text
-    returnKeyType="done"
-    on:returnPress={saveToken}
-    autocorrect="false"
-    class="input input-border" />
-</page>
+<style>
+  stackLayout {
+    margin: 20px;
+  }
+
+  label {
+    font-size: 20px;
+    font-weight: bold;
+    color: #2847d2;
+  }
+
+  textView {
+    height: 200px;
+    font-size: 18;
+    color: #2847d2;
+  }
+
+  button.save {
+    background-color: black;
+    height: 88px;
+  }
+</style>
+
+<stackLayout>
+  <label text="Token" />
+  <textView hint="Enter token" bind:text maxLength="64" autocorrect="false" />
+  <button class="save" text="Save" on:tap={saveToken} />
+</stackLayout>

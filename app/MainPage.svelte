@@ -4,6 +4,7 @@
     resumeEvent,
     on as applicationOn
   } from "tns-core-modules/application";
+  import TokenPage from "./TokenPage";
   import { token } from "./Store.js";
   const capitalize = (v = "") => v.charAt(0).toUpperCase() + v.slice(1);
 
@@ -25,6 +26,10 @@
     $token = "";
   }
 
+  function isTokenRejected(data) {
+    return Array.isArray(data);
+  }
+
   async function checkStatus() {
     status = "loading";
     try {
@@ -36,7 +41,7 @@
       } else {
         checked = false;
       }
-    } catch (e) {
+    } catch (error) {
       status = "error";
     }
     initializing = false;
@@ -58,29 +63,46 @@
         const response = await fetch(
           `http://pi.hole/admin/api.php?disable=0&auth=${$token}`
         );
-        status = "disabled";
+        const data = await response.json();
+        if (isTokenRejected(data)) {
+          resetToken();
+        } else {
+          status = "disabled";
+        }
       } else {
         // enable adblocking
         const response = await fetch(
           `http://pi.hole/admin/api.php?enable&auth=${$token}`
         );
-        status = "enabled";
+        const data = await response.json();
+        if (isTokenRejected(data)) {
+          resetToken();
+        } else {
+          status = "enabled";
+        }
       }
-    } catch (e) {
+    } catch (error) {
       await checkStatus();
     }
   };
 </script>
 
+<style>
+  stackLayout {
+    margin: 20px;
+  }
+</style>
+
 <stackLayout>
   {#if status === 'loading'}
     <activityIndicator busy={true} />
+  {:else if !$token}
+    <TokenPage />
   {:else if status === 'error'}
     <label
       text="Cannot connect to Pi-Hole 😖"
-      class="h3 text-center"
+      class="h2 text-center"
       style="color: red" />
-    <button text="Reset Token" on:tap={resetToken} />
   {:else}
     <label text="Status: {Status}" class="h1 text-center" />
     <switch {checked} on:checkedChange={toggleSwitch} />
