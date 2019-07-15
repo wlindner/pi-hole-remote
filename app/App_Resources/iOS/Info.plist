@@ -58,5 +58,7 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+  	<string>The camera is used to read the API token QR code</string>
 </dict>
 </plist>
