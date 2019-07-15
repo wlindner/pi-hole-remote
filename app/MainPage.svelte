@@ -33,6 +33,10 @@
   async function checkStatus() {
     status = "loading";
     try {
+      // To get the amount of time left until adblocking is enabled
+      // GET http://pi.hole/admin/settings.php?tab=api
+      // parse the document for <div id="enableTimer" hidden>TIMESTAMP</div>
+      // <div id="enableTimer" hidden></div> means adblocking is permenantly disabled
       const response = await fetch("http://pi.hole/admin/api.php");
       const data = await response.json();
       status = data.status;
